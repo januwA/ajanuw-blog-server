@@ -24,20 +24,20 @@ async function bootstrap() {
   let nestApplicationOptions;
   if (process.env.NODE_ENV === 'producation') {
     hostname = '0.0.0.0';
-    nestApplicationOptions = {
-      httpsOptions: {
-        key: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/privkey.pem'),
-        cert: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/cert.pem'),
-      },
-    };
-  } else {
-    hostname = '127.0.0.1';
     // nestApplicationOptions = {
     //   httpsOptions: {
-    //     key: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.key'),
-    //     cert: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.crt'),
+    //     key: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/privkey.pem'),
+    //     cert: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/cert.pem'),
     //   },
     // };
+  } else {
+    hostname = '127.0.0.1';
+    nestApplicationOptions = {
+      httpsOptions: {
+        key: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.key'),
+        cert: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.crt'),
+      },
+    };
   }
   const app = await NestFactory.create(AppModule, nestApplicationOptions);
 
