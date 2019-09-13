@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as os from 'os';
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
@@ -10,8 +11,14 @@ import { TypesModule } from './types/types.module';
 import { EssaysModule } from './essays/essays.module';
 
 async function bootstrap() {
-  // process.env.NODE_ENV = 'producation';
-  process.env.NODE_ENV = 'development';
+
+  // 简单的设置下开发模式和生产模式
+  if (os.platform() === 'linux') {
+    process.env.NODE_ENV = 'producation';
+  } else {
+    // } else if (os.platform() === 'win32') {
+    process.env.NODE_ENV = 'development';
+  }
 
   let hostname = '0.0.0.0';
   let nestApplicationOptions;
