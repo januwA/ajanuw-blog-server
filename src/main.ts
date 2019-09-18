@@ -32,12 +32,12 @@ async function bootstrap() {
     // };
   } else {
     hostname = '127.0.0.1';
-    nestApplicationOptions = {
-      httpsOptions: {
-        key: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.key'),
-        cert: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.crt'),
-      },
-    };
+    // nestApplicationOptions = {
+    //   httpsOptions: {
+    //     key: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.key'),
+    //     cert: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.crt'),
+    //   },
+    // };
   }
   const app = await NestFactory.create(AppModule, nestApplicationOptions);
 

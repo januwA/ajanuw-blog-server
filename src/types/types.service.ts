@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   HttpException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Type } from './interfaces/type.interface';
 import { CreateTypeDto } from './dto/create-type.dto';
@@ -78,32 +78,49 @@ export class TypesService {
 
   /**
    * 返回所有的type
-   * 查询essays中有多少条包含该type的数据条数
+   * 查询essays中有多少条包含该type的数据条数，假删除的不包含在内
    */
   async getAll() {
-    const types: TypeClass[] = await this.typeModel
-      .aggregate()
-      .lookup({
-        from: DatabaseNames.essays,
-        localField: '_id',
-        foreignField: 'types',
-        as: 'len',
-      })
-      .project({
-        title: 1,
-        description: 1,
-        len: {
-          $cond: {
-            if: {
-              $isArray: '$len',
+    const types: TypeClass[] = await this.typeModel.aggregate([
+      {
+        $lookup: {
+          from: DatabaseNames.essays,
+          localField: '_id',
+          foreignField: 'types',
+          as: 'len',
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          len: {
+            $filter: {
+              input: '$len',
+              as: 'item',
+              cond: { $eq: ['$$item.isDelete', false] },
             },
-            then: {
-              $size: '$len',
-            },
-            else: '0',
           },
         },
-      });
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          len: {
+            $cond: {
+              if: {
+                $isArray: '$len',
+              },
+              then: {
+                $size: '$len',
+              },
+              else: '0',
+            },
+          },
+        },
+      },
+    ]);
     return types.map(t => new this.typeModel(t));
   }
 }
