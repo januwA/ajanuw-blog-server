@@ -74,6 +74,15 @@ export class EssaysController {
     return all;
   }
 
+  @Get('category/:id')
+  @ApiOkResponse({
+    type: [EssayClass],
+    description: '返回指定类别ID的essay',
+  })
+  async findCategoryEssays(@Param('id') id: string) {
+    return this.essaysService.findCategoryEssays(id);
+  }
+
   // 创建新的文章
   @Post()
   @UseGuards(AuthGuard(userLoginJwt))
@@ -104,7 +113,7 @@ export class EssaysController {
 
   @Get(':id')
   @ApiOkResponse({
-    description: '返回指定的essay',
+    description: '返回指定ID的essay',
     type: EssayClass,
   })
   findOne(@Param('id') id: string) {

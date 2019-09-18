@@ -162,6 +162,17 @@ export class EssaysService {
   }
 
   /**
+   * * 查询指定类型的essays，没有分页一次拉完
+   * @param typeId
+   */
+  async findCategoryEssays(typeId: string): Promise<Essay[]> {
+    return await this.essayModel.find({
+      isDelete: false,
+      types: typeId,
+    });
+  }
+
+  /**
    * 使用type ids连表查询
    */
   private _typesLookup = {
