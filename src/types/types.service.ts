@@ -92,10 +92,11 @@ export class TypesService {
       },
       {
         $project: {
+          icon: 1,
           title: 1,
           description: 1,
           len: {
-            $filter: {
+            $filter: { // 过滤掉假删除essay
               input: '$len',
               as: 'item',
               cond: { $eq: ['$$item.isDelete', false] },
@@ -105,6 +106,7 @@ export class TypesService {
       },
       {
         $project: {
+          icon: 1,
           title: 1,
           description: 1,
           len: {

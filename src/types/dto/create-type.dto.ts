@@ -9,6 +9,14 @@ export class CreateTypeDto {
   @ApiModelProperty({ description: '分类标题' })
   readonly title: string;
 
+
+  @IsString()
+  @IsNotEmpty({
+    message: 'icon 不能为空',
+  })
+  @ApiModelProperty({ description: 'icon图标' })
+  readonly icon: string;
+
   @IsString()
   @IsDefined()
   @ApiModelProperty({

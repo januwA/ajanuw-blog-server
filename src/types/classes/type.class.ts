@@ -11,6 +11,12 @@ export class TypeClass {
   })
   title: string;
 
+
+  @ApiModelProperty({
+    example: 'https://i.loli.net/2019/09/18/6BchR5Ij1DpSOQd.png',
+  })
+  icon: string;
+
   @ApiModelProperty({
     example: '介绍',
   })

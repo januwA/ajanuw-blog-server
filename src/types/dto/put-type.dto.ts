@@ -19,6 +19,16 @@ export class PutTypeDto {
   })
   readonly title: string;
 
+
+  @IsString()
+  @IsNotEmpty({
+    message: 'icon不能为空',
+  })
+  @ApiModelProperty({
+    description: 'icon图标',
+  })
+  readonly icon: string;
+
   @IsString()
   @ApiModelProperty({
     required: false,
