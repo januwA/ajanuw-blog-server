@@ -10,7 +10,9 @@ const EssaySchema = new Schema({
   content: String,
   summary: String,
 
-  // 发布时间
+  /**
+   * 发布时间
+   */
   published: { type: Date, default: Date.now },
 
   // 文章的分类id

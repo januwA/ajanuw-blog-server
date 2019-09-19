@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsArray, IsDateString } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { ApiModelProperty } from '@nestjs/swagger';
 export class CreateEssayDto {
