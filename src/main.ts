@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as os from 'os';
 
 import { NestFactory } from '@nestjs/core';
@@ -11,35 +10,14 @@ import { TypesModule } from './types/types.module';
 import { EssaysModule } from './essays/essays.module';
 
 async function bootstrap() {
-
   // 简单的设置下开发模式和生产模式
   if (os.platform() === 'linux') {
     process.env.NODE_ENV = 'producation';
   } else {
-    // } else if (os.platform() === 'win32') {
     process.env.NODE_ENV = 'development';
   }
 
-  let hostname = '0.0.0.0';
-  let nestApplicationOptions;
-  if (process.env.NODE_ENV === 'producation') {
-    hostname = '0.0.0.0';
-    // nestApplicationOptions = {
-    //   httpsOptions: {
-    //     key: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/privkey.pem'),
-    //     cert: fs.readFileSync('/etc/letsencrypt/live/ajanuw.xyz/cert.pem'),
-    //   },
-    // };
-  } else {
-    hostname = '127.0.0.1';
-    // nestApplicationOptions = {
-    //   httpsOptions: {
-    //     key: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.key'),
-    //     cert: fs.readFileSync('D:\\localhost_ssl\\dev.ajanuw.com.crt'),
-    //   },
-    // };
-  }
-  const app = await NestFactory.create(AppModule, nestApplicationOptions);
+  const app = await NestFactory.create(AppModule);
 
   // dto
   app.useGlobalPipes(
@@ -105,6 +83,8 @@ async function bootstrap() {
 
   app.enableCors();
 
+  let hostname =
+    process.env.NODE_ENV === 'producation' ? '0.0.0.0' : '127.0.0.1';
   await app.listen(5000, hostname);
 }
 bootstrap();
