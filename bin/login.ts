@@ -4,6 +4,6 @@ const bcrypt = require('bcrypt');
   const saltRounds = 10;
   console.log({
     username: 'ajanuw',
-    password: await bcrypt.hash('ajanuw123', saltRounds),
+    password: await bcrypt.hash('1234567', saltRounds),
   });
 })();

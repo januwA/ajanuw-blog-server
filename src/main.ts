@@ -1,90 +1,25 @@
-import * as os from 'os';
-
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { UserModule } from './user/user.module';
-import { TypesModule } from './types/types.module';
-import { EssaysModule } from './essays/essays.module';
 
 async function bootstrap() {
-  // 简单的设置下开发模式和生产模式
-  if (os.platform() === 'linux') {
-    process.env.NODE_ENV = 'producation';
-  } else {
-    process.env.NODE_ENV = 'development';
-  }
-
   const app = await NestFactory.create(AppModule);
 
-  // dto
-  app.useGlobalPipes(
-    new ValidationPipe({
-      disableErrorMessages: false, // 不显示错误信息
-      whitelist: true, // 开启过滤,过滤掉发送来的多于字段
-    }),
-  );
-
-  // swagger
-  const options = new DocumentBuilder()
-    .setTitle('Ajanuw blog')
-    .setDescription('ajanuw blog api')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, options, {});
-  SwaggerModule.setup('api', app, document);
-
-  // user
-  const userOptions = new DocumentBuilder()
-    .setTitle('User Route')
-    .setDescription('The user API description')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const UserDocument = SwaggerModule.createDocument(app, userOptions, {
-    include: [UserModule],
-  });
-  SwaggerModule.setup('api/user', app, UserDocument);
-
-  //types
-  const typesOptions = new DocumentBuilder()
-    .setTitle('types Route')
-    .setDescription('The types API description')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
   SwaggerModule.setup(
-    'api/types',
+    'swagger',
     app,
-    SwaggerModule.createDocument(app, typesOptions, {
-      include: [TypesModule],
-    }),
-  );
-
-  //essays
-  const essaysOptions = new DocumentBuilder()
-    .setTitle('essays Route')
-    .setDescription('The essays API description')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  SwaggerModule.setup(
-    'api/essays',
-    app,
-    SwaggerModule.createDocument(app, essaysOptions, {
-      include: [EssaysModule],
-    }),
+    SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder()
+        .setTitle('api文档')
+        .addBearerAuth() // 需要身份验证
+        .build(),
+    ),
   );
 
   app.enableCors();
-
-  let hostname =
-    process.env.NODE_ENV === 'producation' ? '0.0.0.0' : '127.0.0.1';
-  await app.listen(5000, hostname);
+  await app.listen(3000, () => {
+    console.log('http://localhost:3000');
+  });
 }
 bootstrap();

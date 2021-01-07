@@ -5,15 +5,16 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es6",
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "~auth/*": ["auth/*"],
-      "~src/*": ["./*"]
+      "~api/*": [
+        "./src/api/*"
+      ],
     }
-  },
-  "exclude": ["node_modules", "bin", "dist"]
+  }
 }

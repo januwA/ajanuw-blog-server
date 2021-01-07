@@ -1,25 +1,19 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { ApiModule } from './api/api.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TypesModule } from './types/types.module';
-import { EssaysModule } from './essays/essays.module';
 
 @Module({
   imports: [
-    AuthModule,
-    UserModule,
+    ApiModule, // 使用ajanuw_blog库
     MongooseModule.forRoot('mongodb://localhost/ajanuw_blog', {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useUnifiedTopology: true,
+      connectionFactory: (connection) => {
+        connection.plugin(require('@meanie/mongoose-to-json'));
+        return connection;
+      },
     }),
-    TypesModule,
-    EssaysModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
