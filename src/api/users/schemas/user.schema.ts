@@ -4,12 +4,16 @@ import * as mongoose from 'mongoose';
 export type UserDocument = User & mongoose.Document;
 @Schema()
 export class User {
-
   @Prop({ type: String })
   username: string;
-  
+
   @Prop({ type: String })
   password: string;
-  
+
+  @Prop({ type: String })
+  avatar: string;
+
+  @Prop({ type: [String], default: ['admin'] })
+  roles: string[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);

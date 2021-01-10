@@ -1,11 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 
 @Controller('api')
 export class ApiController {
   @Get('/test')
   test() {
     return {
-      data: 'test open api',
+      msg: 'hello',
     };
   }
 }

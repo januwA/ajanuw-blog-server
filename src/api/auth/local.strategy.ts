@@ -11,10 +11,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     // 默认使用username和password，但是可以改
     // http://www.passportjs.org/docs/username-password/#parameters
-    super();
+    super({
+      usernameField: 'username',
+      passwordField: 'password',
+    });
   }
 
-  async validate(username: string, password: string): Promise<any> {
-    return await this.authService.validateUser({ username, password });
+  async validate(username: string, password: string) {
+    return this.authService.validateUser({ username, password });
   }
 }

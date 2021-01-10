@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
 import { AuthModule } from './auth/auth.module';
@@ -9,6 +10,11 @@ import { UsersModule } from './users/user.module';
 @Module({
   controllers: [ApiController],
   providers: [ApiService],
-  imports: [UsersModule, AuthModule, EssaysModule, TypesModule],
+  imports: [
+    UsersModule,
+    AuthModule,
+    EssaysModule,
+    TypesModule,
+  ],
 })
 export class ApiModule {}

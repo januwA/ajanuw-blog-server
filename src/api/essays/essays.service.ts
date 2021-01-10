@@ -13,7 +13,9 @@ import { Essay, EssayDocument } from './schemas/essay.schema';
 
 @Injectable()
 export class EssaysService {
+  // 分页，每页15条数据
   private readonly _findLimit = 15;
+
   private _gSkip(page: number): number {
     return (page - 1) * this._findLimit;
   }
@@ -23,17 +25,10 @@ export class EssaysService {
     private readonly essayModel: Model<EssayDocument>,
   ) {}
 
-  async create(createEssayDto: CreateEssayDto): Promise<Essay> {
+  async create(createEssayDto: CreateEssayDto) {
     try {
       const createdType = new this.essayModel(createEssayDto);
-      const newDoc = await createdType.save();
-      const data: Essay[] = await this.essayModel
-        .aggregate()
-        .match({ _id: newDoc._id })
-        .lookup(this._typesLookup);
-      if (data.length === 0) throw new NotFoundException();
-      const essay = data[0];
-      return new this.essayModel(essay);
+      return (await createdType.save()).populate('types');
     } catch (error) {
       throw new InternalServerErrorException('创建失败');
     }
@@ -56,9 +51,7 @@ export class EssaysService {
 
   async delete(id: string): Promise<any> {
     try {
-      const _id = Types.ObjectId(id);
-      await this.essayModel.deleteOne({ _id });
-      return;
+      return this.essayModel.deleteOne({ _id: Types.ObjectId(id) });
     } catch (error) {
       throw new InternalServerErrorException('删除失败');
     }
@@ -73,14 +66,12 @@ export class EssaysService {
 
       const mongoPath = this._getMongoPath(path);
       try {
-        const _id = Types.ObjectId(id);
-        await this.essayModel.updateOne(
-          { _id },
+        return this.essayModel.updateOne(
+          { _id: Types.ObjectId(id) },
           {
             $set: { [mongoPath]: value },
           },
         );
-        return;
       } catch (error) {
         throw new InternalServerErrorException();
       }
@@ -88,36 +79,19 @@ export class EssaysService {
   }
 
   async findOne(id: string): Promise<Essay> {
-    const _id = Types.ObjectId(id);
-
     try {
-      const data: Essay[] = await this.essayModel
-        .aggregate()
-        .match({ _id })
-        .lookup(this._typesLookup)
-        .project({ summary: 0 }); // 详情不显示摘要
-      if (data.length === 0) throw new NotFoundException();
-      const essay = data[0];
-      return new this.essayModel(essay);
+      return this.essayModel.findById(id).populate('types');
     } catch (er) {
       throw new NotFoundException();
     }
   }
 
-  private async findAll(match: any, page: number): Promise<Essay[]> {
-    try {
-      const allData: Essay[] = await this.essayModel
-        .aggregate()
-        .match(match)
-        .lookup(this._typesLookup)
-        .project({ content: 0 }) // 列表不显示内容，只显示摘要
-        .skip(this._gSkip(page)) // 先skip，在limit
-        .limit(this._findLimit);
-
-      return allData.map((e) => new this.essayModel(e));
-    } catch (error) {
-      throw new NotFoundException();
-    }
+  private async findAll(match: any, page: number): Promise<EssayDocument[]> {
+    return this.essayModel
+      .find(match)
+      .populate('types')
+      .skip(this._gSkip(page)) // 先skip，在limit
+      .limit(this._findLimit);
   }
 
   /**
@@ -127,33 +101,28 @@ export class EssaysService {
     return await this.findAll({ isDelete: false }, page);
   }
 
-  async searchTitle(word: string, page: number): Promise<Essay[]> {
-    const result = await this.essayModel
-      .find(
-        {
-          /// 一个word查询，对中文有点不合理
-          // $text: {
-          //   $search: word,
-          //   $language: ''
-          //  },
+  async searchTitle(word: string, page: number): Promise<EssayDocument[]> {
+    return this.essayModel
+      .find({
+        /// 一个word查询，对中文有点不合理
+        // $text: {
+        //   $search: word,
+        //   $language: ''
+        //  },
 
-          isDelete: false,
-          // 使用正则表达式查询
-          title: {
-            $regex: new RegExp(word, 'i'),
-          },
+        isDelete: false,
+        // 使用正则表达式查询
+        title: {
+          $regex: new RegExp(word, 'i'),
         },
-        {
-          content: 0,
-        },
-      )
+      })
       .skip(this._gSkip(page))
-      .limit(this._findLimit);
-    return result;
+      .limit(this._findLimit)
+      .populate('types');
   }
 
   /**
-   * 所有删除了的essay
+   * 所有假删除了的essay
    */
   async findDeleteEssays(page: number): Promise<Essay[]> {
     return await this.findAll({ isDelete: true }, page);
@@ -163,8 +132,8 @@ export class EssaysService {
    * * 查询指定类型的essays，没有分页一次拉完
    * @param typeId
    */
-  async findCategoryEssays(typeId: string): Promise<Essay[]> {
-    return await this.essayModel.find({
+  async findCategoryEssays(typeId: string) {
+    return this.essayModel.find({
       isDelete: false,
       types: typeId as any,
     });

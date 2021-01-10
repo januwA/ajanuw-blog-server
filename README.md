@@ -1,15 +1,13 @@
 ## blog server
 
+单人博客
+
 
 ## 启动服务
 ```
 $ npm run start:dev
 open: http://localhost:3000/api/test
 ```
-
-## swagger api文档
-
-http://localhost:3000/swagger/
 
 ## 创建一个用户
 ```

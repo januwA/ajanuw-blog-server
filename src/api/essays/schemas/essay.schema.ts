@@ -12,9 +12,6 @@ export class Essay {
   @Prop({ type: String })
   content: string;
 
-  @Prop({ type: String })
-  summary: string;
-
   @Prop({ type: Date, default: Date.now })
   published: Date;
 

@@ -10,39 +10,24 @@ import {
   IsDefined,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class RemoveEssayItemDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({
-    example: 'replace',
-  })
   op: string;
 
   @IsString()
   @IsNotEmpty()
   @Contains('/')
-  @ApiProperty({
-    example: '/isDelete',
-  })
   path: string;
 
   @IsDefined()
-  @ApiProperty({
-    required: false,
-    example: false,
-  })
   readonly value: any;
 }
 
 export class RemoveEssayDto {
   @IsNotEmpty()
   @IsArray()
-  @ApiProperty({
-    isArray: true,
-    type: RemoveEssayItemDto,
-  })
   @ValidateNested({ each: true })
   @IsNonPrimitiveArray()
   @Type(() => RemoveEssayItemDto)

@@ -1,14 +1,8 @@
-import {
-  HttpException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-
-import { UserLoginDto } from '~api/users/dto/user-login.dto';
 import { User, UserDocument } from '~api/users/schemas/user.schema';
 
 @Injectable()
@@ -22,21 +16,20 @@ export class AuthService {
    * 用户登录，验证用户的账号密码是否正确
    * @param userLogin
    */
-  async validateUser(userLogin: UserLoginDto): Promise<any> {
-    const user: User = await this.userModel.findOne({
+  async validateUser(userLogin: any) {
+    const user: UserDocument = await this.userModel.findOne({
       username: userLogin.username,
     });
 
-    if (!user) throw new UnauthorizedException('账号错误');
+    if (!user) throw new BadRequestException('账号错误');
     const isValidatePassword = await bcrypt.compare(
       userLogin.password,
       user.password,
     );
-    if (!isValidatePassword) throw new UnauthorizedException('密码错误');
+    if (!isValidatePassword) throw new BadRequestException('密码错误');
 
-    // 不能直接操作document对象
     // 过滤掉password属性
-    const { password, ...result } = user;
+    const { password, ...result } = user.toJSON();
     return result;
   }
 
@@ -45,9 +38,8 @@ export class AuthService {
    * @param user
    */
   async login(user: any) {
-    const payload = { username: user.username, sub: user._id };
     return {
-      token: this.jwtService.sign(payload),
+      token: this.jwtService.sign(user), // 会调用jwt的validate
     };
   }
 }

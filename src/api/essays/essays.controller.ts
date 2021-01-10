@@ -10,33 +10,19 @@ import {
   Patch,
   Query,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiCreatedResponse,
-  ApiTags,
-  ApiOkResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
 import { EssaysService } from './essays.service';
 import { CreateEssayDto } from './dto/create-essay.dto';
 import { UpdateEssayDto } from './dto/update-essay.dto';
 import { RemoveEssayDto } from './dto/patch-sesay.dto';
-import { EssayClass } from './classes/essay.class';
 import { FindLimitQueryDto } from './dto/find-limit-query.dto';
 import { JwtAuthGuard } from '~api/auth/jwt-auth.guard';
 
-export const routeName = 'api/essays';
-@ApiTags(routeName)
-@Controller(routeName)
+@Controller('api/essays')
 export class EssaysController {
   constructor(private readonly essaysService: EssaysService) {}
 
   // 获取所有未删除的essay
   @Get()
-  @ApiOkResponse({
-    type: [EssayClass],
-    description: '返回所有essay',
-  })
   async findNotDeleteEssays(@Query() findLimitQueryDto: FindLimitQueryDto) {
     const all = await this.essaysService.findNotDeleteEssays(
       findLimitQueryDto.page,
@@ -46,39 +32,24 @@ export class EssaysController {
 
   /// 按标题搜索essays
   @Get('search/:w')
-  @ApiOkResponse({
-    type: [EssayClass],
-    description: '返回搜索到的essay',
-  })
   async searchTitle(
     @Param('w') word: string,
     @Query() findLimitQueryDto: FindLimitQueryDto,
   ) {
-    const searchResult = await this.essaysService.searchTitle(
-      word,
-      findLimitQueryDto.page,
-    );
-    return searchResult;
+    return this.essaysService.searchTitle(word, findLimitQueryDto.page);
   }
 
   // 获取所有假删除的essay
   @Get('deletes')
-  @ApiOkResponse({
-    type: [EssayClass],
-    description: '返回所有被删除的essay',
-  })
   async findDeleteEssays(@Query() findLimitQueryDto: FindLimitQueryDto) {
-    const all = await this.essaysService.findDeleteEssays(
-      findLimitQueryDto.page,
-    );
-    return all;
+    return this.essaysService.findDeleteEssays(findLimitQueryDto.page);
   }
 
+  /**
+   * 查询包含指定type的essays
+   * @param id 
+   */
   @Get('category/:id')
-  @ApiOkResponse({
-    type: [EssayClass],
-    description: '返回指定类别ID的essay',
-  })
   async findCategoryEssays(@Param('id') id: string) {
     return this.essaysService.findCategoryEssays(id);
   }
@@ -86,11 +57,6 @@ export class EssaysController {
   // 创建新的文章
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiCreatedResponse({
-    description: '创建成功',
-    type: EssayClass,
-  })
   create(@Body() createEssayDto: CreateEssayDto) {
     return this.essaysService.create(createEssayDto);
   }
@@ -98,7 +64,6 @@ export class EssaysController {
   // 更新指定文章
   @Put()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   update(@Body() putEssayDto: UpdateEssayDto) {
     return this.essaysService.update(putEssayDto);
   }
@@ -106,16 +71,11 @@ export class EssaysController {
   // 彻底删除指定的essay
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   async delete(@Param('id') id: string) {
     return await this.essaysService.delete(id);
   }
 
   @Get(':id')
-  @ApiOkResponse({
-    description: '返回指定ID的essay',
-    type: EssayClass,
-  })
   findOne(@Param('id') id: string) {
     return this.essaysService.findOne(id);
   }
@@ -123,7 +83,6 @@ export class EssaysController {
   // 假删除/取消假删除
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   patch(@Param('id') id: string, @Body() removeEssayDto: RemoveEssayDto) {
     return this.essaysService.patch(id, removeEssayDto);
   }

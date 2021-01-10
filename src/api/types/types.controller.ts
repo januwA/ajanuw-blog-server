@@ -7,80 +7,62 @@ import {
   Param,
   Body,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CreateTypeDto } from './dto/create-type.dto';
 import { TypesService } from './types.service';
 import { PutTypeDto } from './dto/put-type.dto';
-import {
-  ApiParam,
-  ApiOkResponse,
-  ApiCreatedResponse,
-  ApiBearerAuth,
-  ApiTags,
-} from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { TypeClass } from './classes/type.class';
 import { Type } from './schemas/type.schema';
 import { JwtAuthGuard } from '~api/auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SharedService } from 'src/shared/shared.service';
 
-export const routeName = 'api/types';
-@ApiTags(routeName)
-@Controller(routeName)
+@Controller('api/types')
 export class TypesController {
-  constructor(private readonly typesService: TypesService) {}
+  constructor(
+    private readonly typesService: TypesService,
+    private readonly sharedService: SharedService,
+  ) {}
 
   @Get()
-  @ApiOkResponse({
-    description: '返回所有类型',
-    isArray: true,
-    type: TypeClass,
-  })
   getAll() {
     return this.typesService.getAll();
   }
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiCreatedResponse({
-    description: '创建新的类型成功.',
-  })
   create(@Body() createType: CreateTypeDto): Promise<Type> {
     return this.typesService.create(createType);
   }
 
   @Put()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({
-    description: '修改成功',
-  })
   put(@Body() putTypeDto: PutTypeDto) {
     return this.typesService.put(putTypeDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({
-    description: '删除成功',
-  })
   delete(@Param('id') id: string) {
     return this.typesService.delete(id);
   }
 
   @Get(':id')
-  @ApiParam({
-    name: 'id',
-    description: '获取指定id的类型',
-    required: true,
-    type: String,
-  })
-  @ApiOkResponse({
-    description: '返回查询到的类型',
-    type: TypeClass,
-  })
   getOne(@Param('id') typeId: string): Promise<Type> {
     return this.typesService.getOne(typeId);
+  }
+
+  /**
+   * 上传类型的icon
+   * @param file
+   */
+  @Post('icon')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadIcon(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    return { url: await this.sharedService.qiniu(file) };
   }
 }

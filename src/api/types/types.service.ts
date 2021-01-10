@@ -8,7 +8,6 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateTypeDto } from './dto/create-type.dto';
 import { PutTypeDto } from './dto/put-type.dto';
-import { TypeClass } from './classes/type.class';
 import { Type, TypeDocument } from './schemas/type.schema';
 
 @Injectable()
@@ -80,7 +79,7 @@ export class TypesService {
    * 查询essays中有多少条包含该type的数据条数，假删除的不包含在内
    */
   async getAll() {
-    const types: TypeClass[] = await this.typeModel.aggregate([
+    const types: TypeDocument[] = await this.typeModel.aggregate([
       {
         $lookup: {
           from: 'essays',
@@ -123,6 +122,6 @@ export class TypesService {
         },
       },
     ]);
-    return types.map((t) => new this.typeModel(t));
+    return types.map((it) => new this.typeModel(it).toJSON());
   }
 }
